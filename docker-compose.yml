@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      # JDWP. Aplikacja nie czeka na debugger (DEBUG_SUSPEND=y, gdy ma czekać).
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=${DEBUG_SUSPEND:-n},address=*:5005"
+    ports:
+      - "8080:8080"
+      - "127.0.0.1:5005:5005"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
