@@ -33,5 +33,14 @@ const ART = {
 };
 
 export default function Piece({ type, color }) {
-  return <img className="piece" src={ART[color][type]} alt="" draggable={false} aria-hidden="true" />;
+  const src = ART[color]?.[type];
+  if (!src) {
+    const tone = color === "WHITE" ? "white" : "black";
+    return (
+      <span className={`piece fallback ${tone}`} aria-hidden="true">
+        {type.slice(0, 1)}
+      </span>
+    );
+  }
+  return <img className="piece" src={src} alt="" draggable={false} aria-hidden="true" />;
 }

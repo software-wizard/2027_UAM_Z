@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import Piece from "./pieces";
 
-const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
+const COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+const ROWS = ["R8", "R7", "R6", "R5", "R4", "R3", "R2", "R1"];
 const PIECE_NAMES = {
   KING: "król",
   QUEEN: "hetman",
@@ -69,15 +70,18 @@ export default function App() {
     }
   }
 
-  function onSquare(row, col) {
+  function onSquare(column, row) {
+    if (game.mate) {
+      return;
+    }
     send("/api/game/click", {
       method: "POST",
-      body: JSON.stringify({ row, col }),
+      body: JSON.stringify({ column, row }),
     });
   }
 
-  function onReset() {
-    send("/api/game/reset", { method: "POST" });
+  function onNewGame() {
+    send("/api/game", { method: "POST" });
   }
 
   if (!game) {
@@ -91,8 +95,9 @@ export default function App() {
     );
   }
 
-  const legal = new Map(game.legalMoves.map((move) => [`${move.row}:${move.col}`, move.capture]));
+  const legal = new Map(game.legalMoves.map((move) => [`${move.column}:${move.row}`, move.capture]));
   const side = game.turn === "WHITE" ? "białe" : "czarne";
+  const winner = game.turn === "WHITE" ? "czarne" : "białe";
 
   return (
     <main className="page">
@@ -100,26 +105,31 @@ export default function App() {
         <header>
           <div>
             <h1>Szachy</h1>
-            <p className="turn">
-              <span className={`swatch ${game.turn === "WHITE" ? "white" : "black"}`} />
-              Teraz grają {side}
-            </p>
+            {game.mate ? (
+              <p className="turn mate">Mat. Wygrały {winner}.</p>
+            ) : (
+              <p className="turn">
+                <span className={`swatch ${game.turn === "WHITE" ? "white" : "black"}`} />
+                Teraz grają {side}
+              </p>
+            )}
           </div>
-          <button type="button" className="reset" onClick={onReset}>
+          <button type="button" className="new-game" onClick={onNewGame}>
             Nowa partia
           </button>
         </header>
 
         <div className="frame">
           <div className="board" aria-label="Szachownica">
-            {game.board.map((rank, row) => (
+            {ROWS.map((row) => (
               <div className="rank" key={row}>
-                {rank.map((piece, col) => {
-                  const key = `${row}:${col}`;
-                  const selected =
-                    game.selected != null && game.selected.row === row && game.selected.col === col;
-                  const capture = legal.get(key);
-                  const light = (row + col) % 2 === 0;
+                {COLUMNS.map((column, index) => {
+                  const number = rowNumber(row);
+                  const name = `${column}${number}`;
+                  const piece = game.board[name];
+                  const selected = game.selected?.column === column && game.selected?.row === row;
+                  const capture = legal.get(`${column}:${row}`);
+                  const light = (index + number) % 2 === 0;
                   const classes = [
                     "square",
                     light ? "light" : "dark",
@@ -130,17 +140,17 @@ export default function App() {
 
                   return (
                     <button
-                      key={key}
+                      key={name}
                       type="button"
                       className={classes}
                       aria-pressed={selected}
-                      aria-label={squareLabel(row, col, piece)}
-                      onClick={() => onSquare(row, col)}
+                      aria-label={squareLabel(column, number, piece)}
+                      onClick={() => onSquare(column, row)}
                     >
                       {piece && <Piece type={piece.type} color={piece.color} />}
                       {capture != null && <span className={capture ? "mark capture" : "mark quiet"} />}
-                      {col === 0 && <span className="coord rank-label">{8 - row}</span>}
-                      {row === 7 && <span className="coord file-label">{FILES[col]}</span>}
+                      {column === "A" && <span className="coord rank-label">{number}</span>}
+                      {number === 1 && <span className="coord file-label">{column}</span>}
                     </button>
                   );
                 })}
@@ -151,8 +161,7 @@ export default function App() {
 
         <p className="hint">
           Kliknij figurę gracza przy ruchu. Kropka oznacza wolne pole, obręcz bicie. Inne pole
-          cofa zaznaczenie. Pion na końcu planszy staje się hetmanem. Gra nie zatrzymuje się na
-          macie ani remisie.
+          cofa zaznaczenie. Pion na końcu planszy staje się hetmanem. Przy macie partia się kończy.
         </p>
         {error && <p className="error">{error}</p>}
       </section>
@@ -160,11 +169,16 @@ export default function App() {
   );
 }
 
-function squareLabel(row, col, piece) {
-  const square = `${FILES[col]}${8 - row}`;
+function rowNumber(row) {
+  return Number(row.slice(1));
+}
+
+function squareLabel(column, rank, piece) {
+  const square = `${column}${rank}`;
   if (!piece) {
     return square;
   }
   const side = piece.color === "WHITE" ? "białych" : "czarnych";
-  return `${square}, ${PIECE_NAMES[piece.type]} ${side}`;
+  const name = PIECE_NAMES[piece.type] ?? piece.type.toLowerCase();
+  return `${square}, ${name} ${side}`;
 }

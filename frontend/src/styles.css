@@ -64,6 +64,11 @@ h1 {
   color: var(--muted);
 }
 
+.turn.mate {
+  color: #f0d56c;
+  font-weight: 650;
+}
+
 .swatch {
   width: 0.85rem;
   height: 0.85rem;
@@ -79,7 +84,7 @@ h1 {
   background: #141414;
 }
 
-.reset {
+.new-game {
   background: transparent;
   color: var(--ink);
   border: 1px solid rgba(243, 239, 230, 0.35);
@@ -88,7 +93,7 @@ h1 {
   cursor: pointer;
 }
 
-.reset:hover {
+.new-game:hover {
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -156,6 +161,29 @@ h1 {
   z-index: 1;
   pointer-events: none;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+}
+
+.piece.fallback {
+  display: grid;
+  place-items: center;
+  width: 72%;
+  height: 72%;
+  border-radius: 50%;
+  font-family: Georgia, "Palatino Linotype", Palatino, serif;
+  font-size: 1.35rem;
+  line-height: 1;
+  filter: none;
+}
+
+.piece.fallback.white {
+  background: #f7f3ea;
+  color: #1a1a1a;
+}
+
+.piece.fallback.black {
+  background: #1a1a1a;
+  color: #f7f3ea;
+  box-shadow: inset 0 0 0 1px rgba(243, 239, 230, 0.55);
 }
 
 .mark {
