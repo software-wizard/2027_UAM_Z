@@ -11,11 +11,10 @@ import pl.uam.chess.model.Square;
 
 public final class Board {
 
-    private final PieceFactory factory;
+    private final PieceFactory factory = new PieceFactory();
     private final Map<Square, Piece> squares = new HashMap<>();
 
-    public Board(PieceFactory factory) {
-        this.factory = factory;
+    public Board() {
     }
 
     public Piece create(String name, PieceColor color) {

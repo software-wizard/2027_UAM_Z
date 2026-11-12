@@ -51,8 +51,9 @@ public final class MoveMaker {
             move.accept(CastlingCalculator.rookFrom(from, to), CastlingCalculator.rookTo(from, to));
         }
         move.accept(from, to);
-        if (moving instanceof Pawn pawn && pawn.readyToPromote(to)) {
-            replace.accept(to, create.apply(Queen.NAME, pawn.color()));
+
+        if (moving.readyToPromote(to)) {
+            replace.accept(to, create.apply(Queen.NAME, moving.color()));
         }
         return new MovePlayed(
                 moving,

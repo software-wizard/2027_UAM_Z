@@ -80,4 +80,8 @@ public abstract class Piece {
     public boolean canBeCaptured() {
         return true;
     }
+
+    public boolean readyToPromote(Square aTo) {
+        return false;
+    }
 }

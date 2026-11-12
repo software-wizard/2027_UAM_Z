@@ -25,12 +25,12 @@ public final class GameSession {
     private final MateCalculator mateCalculator;
 
     public GameSession() {
-        this(new PieceFactory(), new StartingSetup(), bus -> {
+        this(new StartingSetup(), bus -> {
         });
     }
 
-    public GameSession(PieceFactory factory, PositionSetup setup, Consumer<EventBus> extend) {
-        Board board = new Board(factory);
+    public GameSession(PositionSetup setup, Consumer<EventBus> extend) {
+        Board board = new Board();
         game = new Game(board, setup);
         LegalMovesCalculator legalMovesCalculator = new LegalMovesCalculator(game);
         mateCalculator = new MateCalculator(board, game, legalMovesCalculator);
